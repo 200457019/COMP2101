@@ -16,6 +16,7 @@ function processDataInfo {
     select name, currentclockSpeed, maxclockspeed, numberofcores, 
     @{  n = "L1CacheSize"; e = { 
             switch ($_.L1CacheSize) {
+                0 { $valueData = 0 }
                 $null { $valueData = "Data Not Found" }
                 Default { $valueData = $_.L1CacheSize }
             };
@@ -23,6 +24,7 @@ function processDataInfo {
     },
     @{  n = "L2CacheSize"; e = { 
             switch ($_.L2CacheSize) {
+                0 { $valueData = 0 }
                 $null { $valueData = "Data Not Found" }
                 Default { $valueData = $_.L2CacheSize }
             };
@@ -50,10 +52,10 @@ function primaryMemoryInfo {
             Bank         = $thisRAM.banklabel
             Slot         = $thisRAM.devicelocator
         }
-        $totalRamCapacity += $thisRAM.Capacity
+        $totalPrimaryStorageCapacity += $thisRAM.Capacity
     } |
     ft manufacturer, description, "Size(in GB)", Bank, Slot -AutoSize
-    write "Total RAM Capacity = $($totalRamCapacity/1gb) GB"
+    write "Total RAM Capacity = $($totalPrimaryStorageCapacity/1gb) GB"
 }
 # Function to show disk data
 function diskDriveInfo {
@@ -92,16 +94,7 @@ function networkDataInfo {
             $valueData
         }
     }, 
-    @{
-        n = 'DNSDomain'; e = {
-            switch ($_.DNSDomain) {
-                $null { $valueData = 'Data Not Found' }
-                Default { $valueData = $_.DNSdomain }
-            };
-            $valueData
-        }
-    }, 
-    DNSServerSearchOrder |
+    DNSDomain, DNSServerSearchOrder |
     ft Index, IPaddress, Description, Subnet, DNSDomain, DNSserversearchorder
 }
 # Function to show graphics data
